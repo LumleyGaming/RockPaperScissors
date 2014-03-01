@@ -8,23 +8,30 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.border.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 
-public class RPS extends JFrame {
+public class RPS extends JFrame implements ActionListener {
 	// Set width and height for window
 	public static final int WIDTH = 400;
 	public static final int HEIGHT = 300;
 
-	private JLabel fillerL, fillerL2, fillerL3, fillerL4, fillerL5, fillerL6;
-	private JLabel winnerL, winnerL2, computerL;
+	private JLabel fillerL, fillerL2, fillerL3, fillerL4;
+	private JLabel winnerL, computerL;
 	private JButton rockB, paperB, scissorsB, lizardB, spockB;
-	private JButton playAgainB, exitB;
+	private JButton exitB;
+	
+	private WinnerHandler whoWins;
 	
 	Border emptyBorder = BorderFactory.createEmptyBorder();
+	
 
-	public int playerSelection = 3;
+	public int playerSelection;
 	
 	ImageIcon rockImage = new ImageIcon("Images/rock.png");
 	ImageIcon paperImage = new ImageIcon("Images/paper.png");
@@ -32,84 +39,42 @@ public class RPS extends JFrame {
 	ImageIcon lizardImage = new ImageIcon("Images/lizard.png");
 	ImageIcon spockImage = new ImageIcon("Images/spock.png");
 
-	private RockButtonHandler rbHandler;
-	private PaperButtonHandler pbHandler;
-	private ScissorsButtonHandler sbHandler;
-	private LizardButtonHandler lbHandler;
-	private SpockButtonHandler spHandler;
-	private PlayAgainButtonHandler abHandler;
-	private ExitButtonHandler ebHandler;
-
 	public RPS() {
 		// Instantiate the filler labels
 		fillerL = new JLabel("", SwingConstants.CENTER);
 		fillerL2 = new JLabel("", SwingConstants.CENTER);
 		fillerL3 = new JLabel("", SwingConstants.CENTER);
 		fillerL4 = new JLabel("", SwingConstants.CENTER);
-		fillerL5 = new JLabel("", SwingConstants.CENTER);
-		fillerL6 = new JLabel("", SwingConstants.CENTER);
-		winnerL = new JLabel("Winner: ", SwingConstants.RIGHT);
+		winnerL = new JLabel("", SwingConstants.CENTER);
 		winnerL.setFont(new Font("Ariel", Font.PLAIN, 26));
 		winnerL.setForeground(new Color(255, 255, 255));
-		winnerL2 = new JLabel("", SwingConstants.LEFT);
-		winnerL2.setForeground(new Color(255, 255, 255));
-		winnerL2.setFont(new Font("Ariel", Font.PLAIN, 26));
 		computerL = new JLabel("", SwingConstants.CENTER);
 		computerL.setForeground(new Color(255, 255, 255));
 
 		// Set Buttons and their Action Listeners
 		rockB = new JButton("Rock", rockImage);
-		rockB.setBackground(new Color(0, 46, 79));
-		rockB.setForeground(new Color(255, 255, 255));
-		rockB.setFocusPainted(false);
-		rockB.setBorderPainted(false);
-		rbHandler = new RockButtonHandler();
-		rockB.addActionListener(rbHandler);
+		buttonSetup(rockB);
+		//rockB.addActionListener(this);
 		
 		paperB = new JButton("Paper", paperImage);
-		paperB.setBackground(new Color(0, 46, 79));
-		paperB.setForeground(new Color(255, 255, 255));
-		paperB.setFocusPainted(false);
-		paperB.setBorderPainted(false);
-		pbHandler = new PaperButtonHandler();
-		paperB.addActionListener(pbHandler);
+		buttonSetup(paperB);
 
 		scissorsB = new JButton("Scissors", scissorsImage);
-		scissorsB.setBackground(new Color(0, 46, 79));
-		scissorsB.setForeground(new Color(255, 255, 255));
-		scissorsB.setFocusPainted(false);
-		scissorsB.setBorderPainted(false);
-		sbHandler = new ScissorsButtonHandler();
-		scissorsB.addActionListener(sbHandler);
+		buttonSetup(scissorsB);
 
 		lizardB = new JButton("Lizard", lizardImage);
-		lizardB.setBackground(new Color(0, 46, 79));
-		lizardB.setForeground(new Color(255, 255, 255));
-		lizardB.setFocusPainted(false);
-		lizardB.setBorderPainted(false);
-		lbHandler = new LizardButtonHandler();
-		lizardB.addActionListener(lbHandler);
+		buttonSetup(lizardB);
 		
 	    spockB = new JButton("Spock", spockImage);
-		spockB.setBackground(new Color(0, 46, 79));
-		spockB.setForeground(new Color(255, 255, 255));
-		spockB.setFocusPainted(false);
-		spockB.setBorderPainted(false);
-		spHandler = new SpockButtonHandler();
-		spockB.addActionListener(spHandler);
-		
-		playAgainB = new JButton("Play Again?");
-		abHandler = new PlayAgainButtonHandler();
-		playAgainB.addActionListener(abHandler);
+		buttonSetup(spockB);
 
 		exitB = new JButton("Exit");
-		ebHandler = new ExitButtonHandler();
-		exitB.addActionListener(ebHandler);
-
+		exitB.addActionListener(this);
+		
 		// Set Window
 		setTitle("Rock, Paper, Scissors, Lizard, Spock");
 		Container pane = getContentPane();
-		pane.setLayout(new GridLayout(7, 2));
+		pane.setLayout(new GridLayout(6, 2));
 
 		// Add items to the board
 		pane.add(rockB);
@@ -123,8 +88,6 @@ public class RPS extends JFrame {
 		pane.add(spockB);
 		pane.add(fillerL4);
 		pane.add(winnerL);
-		pane.add(winnerL2);
-		pane.add(playAgainB);
 		pane.add(exitB);
 
 		// Other panel options
@@ -133,6 +96,36 @@ public class RPS extends JFrame {
 		setVisible(true);
 		pane.setBackground(new Color(0, 46, 79));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+	}
+	
+	public void actionPerformed(ActionEvent e){
+		if (e.getSource() == rockB){
+			playerSelection = 0;
+		} else if (e.getSource() == paperB){
+			playerSelection = 1;
+		} else if (e.getSource() == scissorsB){
+			playerSelection = 2;
+		} else if (e.getSource() == lizardB){
+			playerSelection = 3;
+		} else if (e.getSource() == spockB){
+			playerSelection = 4;
+		} else if (e.getSource() == exitB){
+			System.exit(0);
+		}
+		int cpuChoice = cpuSelection();
+		whoWins = new WinnerHandler(cpuChoice, playerSelection);
+		int winner = whoWins.getWinner();
+		switch (winner){
+		case 0:
+			winnerL.setText("Draw!");
+			break;
+		case 1:
+			winnerL.setText("CPU Wins!");
+			break;
+		case 2:
+			winnerL.setText("You win!");
+			break;
+		}
 	}
 
 	public int cpuSelection() {
@@ -165,258 +158,18 @@ public class RPS extends JFrame {
 
 		return selection;
 	}
-
-	public void playerChoice(int n) {
-		switch (n) {
-		case 0:
-			playerSelection = 0;
-			rockB.removeActionListener(rbHandler);
-			paperB.setEnabled(false);
-			scissorsB.setEnabled(false);
-			lizardB.setEnabled(false);
-			spockB.setEnabled(false);
-			break;
-
-		case 1:
-			playerSelection = 1;
-			paperB.removeActionListener(pbHandler);
-			rockB.setEnabled(false);
-			scissorsB.setEnabled(false);
-			lizardB.setEnabled(false);
-			spockB.setEnabled(false);
-			break;
-
-		case 2:
-			playerSelection = 2;
-			scissorsB.removeActionListener(sbHandler);
-			rockB.setEnabled(false);
-			paperB.setEnabled(false);
-			lizardB.setEnabled(false);
-			spockB.setEnabled(false);
-			break;
-			
-		case 3:
-			playerSelection = 3;
-			lizardB.removeActionListener(lbHandler);
-			rockB.setEnabled(false);
-			paperB.setEnabled(false);
-			scissorsB.setEnabled(false);
-			spockB.setEnabled(false);
-			break;
-			
-		case 4:
-			playerSelection = 4;
-			spockB.removeActionListener(spHandler);
-			rockB.setEnabled(false);
-			paperB.setEnabled(false);
-			scissorsB.setEnabled(false);
-			lizardB.setEnabled(false);
-			break;
-
-		}
-	}
-
-	private class RockButtonHandler implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			playerChoice(0);
-			int cpu = cpuSelection();
-
-			switch (cpu) {
-			case 0:
-				winnerL2.setText("Draw!");
-				break;
-
-			case 1:
-				winnerL2.setText("CPU wins!");
-				winnerL.setForeground(new Color(255, 50, 50));
-				winnerL2.setForeground(new Color(255, 50, 50));
-				break;
-
-			case 2:
-				winnerL2.setText("You win!");
-				winnerL.setForeground(new Color(154, 205, 50));
-				winnerL2.setForeground(new Color(154, 205, 50));
-				break;
-				
-			case 3:
-				winnerL2.setText("You win!");
-				winnerL.setForeground(new Color(154, 205, 50));
-				winnerL2.setForeground(new Color(154, 205, 50));
-				break;
-				
-			case 4:
-				winnerL2.setText("CPU wins!");
-				winnerL.setForeground(new Color(255, 50, 50));
-				winnerL2.setForeground(new Color(255, 50, 50));
-				break;
-			}
-		}
-	}
-
-	private class PaperButtonHandler implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			playerChoice(1);
-			int cpu = cpuSelection();
-
-			switch (cpu) {
-			case 0:
-				winnerL2.setText("You win!");
-				winnerL.setForeground(new Color(154, 205, 50));
-				winnerL2.setForeground(new Color(154, 205, 50));
-				break;
-
-			case 1:
-				winnerL2.setText("Draw!");
-				break;
-
-			case 2:
-				winnerL2.setText("CPU wins!");
-				winnerL.setForeground(new Color(255, 50, 50));
-				winnerL2.setForeground(new Color(255, 50, 50));
-				break;
-				
-			case 3:
-				winnerL2.setText("CPU wins!");
-				winnerL.setForeground(new Color(154, 205, 50));
-				winnerL2.setForeground(new Color(154, 205, 50));
-				break;
-				
-			case 4:
-				winnerL2.setText("You win!");
-				winnerL.setForeground(new Color(255, 50, 50));
-				winnerL2.setForeground(new Color(255, 50, 50));
-				break;
-			}
-		}
-	}
-
-	private class ScissorsButtonHandler implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			playerChoice(2);
-			int cpu = cpuSelection();
-
-			switch (cpu) {
-			case 0:
-				winnerL2.setText("CPU wins!");
-				winnerL.setForeground(new Color(255, 50, 50));
-				winnerL2.setForeground(new Color(255, 50, 50));
-				break;
-
-			case 1:
-				winnerL2.setText("You win!");
-				winnerL.setForeground(new Color(154, 205, 50));
-				winnerL2.setForeground(new Color(154, 205, 50));
-				break;
-
-			case 2:
-				winnerL2.setText("Draw!");
-				break;
-				
-			case 3:
-				winnerL2.setText("You win!");
-				winnerL.setForeground(new Color(154, 205, 50));
-				winnerL2.setForeground(new Color(154, 205, 50));
-				break;
-				
-			case 4:
-				winnerL2.setText("CPU wins!");
-				winnerL.setForeground(new Color(255, 50, 50));
-				winnerL2.setForeground(new Color(255, 50, 50));
-				break;
-			}
-		}
-	}
 	
-	private class LizardButtonHandler implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			playerChoice(3);
-			int cpu = cpuSelection();
-
-			switch (cpu) {
-			case 0:
-				winnerL2.setText("CPU Wins!");
-				winnerL.setForeground(new Color(255, 50, 50));
-				winnerL2.setForeground(new Color(255, 50, 50));
-				break;
-
-			case 1:
-				winnerL2.setText("You win!");
-				winnerL.setForeground(new Color(154, 205, 50));
-				winnerL2.setForeground(new Color(154, 205, 50));
-				break;
-
-			case 2:
-				winnerL2.setText("CPU wins!");
-				winnerL.setForeground(new Color(255, 50, 50));
-				winnerL2.setForeground(new Color(255, 50, 50));
-				break;
-				
-			case 3:
-				winnerL2.setText("Draw!");
-				break;
-				
-			case 4:
-				winnerL2.setText("You win!");
-				winnerL.setForeground(new Color(154, 205, 50));
-				winnerL2.setForeground(new Color(154, 205, 50));
-				break;
-			}
-		}
-	}
-	
-	private class SpockButtonHandler implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			playerChoice(4);
-			int cpu = cpuSelection();
-
-			switch (cpu) {
-			case 0:
-				winnerL2.setText("You win!");
-				winnerL.setForeground(new Color(154, 205, 50));
-				winnerL2.setForeground(new Color(154, 205, 50));
-				break;
-
-			case 1:
-				winnerL2.setText("CPU wins!");
-				winnerL.setForeground(new Color(255, 50, 50));
-				winnerL2.setForeground(new Color(255, 50, 50));
-				break;
-
-			case 2:
-				winnerL2.setText("You win!");
-				winnerL.setForeground(new Color(154, 205, 50));
-				winnerL2.setForeground(new Color(154, 205, 50));
-				break;
-				
-			case 3:
-				winnerL2.setText("CPU wins!");
-				winnerL.setForeground(new Color(255, 50, 50));
-				winnerL2.setForeground(new Color(255, 50, 50));
-				break;
-				
-			case 4:
-				winnerL2.setText("Draw!");
-				break;
-			}
-		}
-	}
-
-	private class PlayAgainButtonHandler implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			dispose();
-			RPS rps = new RPS();
-		}
-	}
-
-	public class ExitButtonHandler implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			System.exit(0);
-		}
+	// Sets colors for buttons
+	public void buttonSetup(JButton s){
+		s.setBackground(new Color(0, 46, 79));
+		s.setForeground(new Color(255, 255, 255));
+		s.setFocusPainted(false);
+		s.setBorderPainted(false);
+		s.addActionListener(this);
 	}
 
 	public static void main(String[] args) {
 		RPS rps = new RPS();
-
 	}
 
 }
