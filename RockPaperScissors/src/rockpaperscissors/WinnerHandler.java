@@ -15,11 +15,11 @@ public class WinnerHandler {
 			switch (playerSelection) {
 			case 2: // Scissors
 			case 3: // Lizard
-				winner = 2;
+				winner = 1;
 				break;
 			case 1: // Paper
 			case 4: // Spock
-				winner = 1;
+				winner = 2;
 				break;
 			// Scissors
 			

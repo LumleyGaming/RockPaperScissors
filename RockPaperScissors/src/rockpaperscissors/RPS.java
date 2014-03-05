@@ -21,17 +21,15 @@ public class RPS extends JFrame implements ActionListener {
 	public static final int WIDTH = 400;
 	public static final int HEIGHT = 300;
 
+	public int playerSelection;
+
 	private JLabel fillerL, fillerL2, fillerL3, fillerL4;
 	private JLabel winnerL, computerL;
 	private JButton rockB, paperB, scissorsB, lizardB, spockB;
 	private JButton exitB;
-	
 	private WinnerHandler whoWins;
 	
 	Border emptyBorder = BorderFactory.createEmptyBorder();
-	
-
-	public int playerSelection;
 	
 	ImageIcon rockImage = new ImageIcon("Images/rock.png");
 	ImageIcon paperImage = new ImageIcon("Images/paper.png");
@@ -171,5 +169,4 @@ public class RPS extends JFrame implements ActionListener {
 	public static void main(String[] args) {
 		RPS rps = new RPS();
 	}
-
 }
